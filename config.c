@@ -52,7 +52,7 @@ struct config_t *read_config(char *filename) {
         // Efter `buf2` er allokeret og config-linjen er kopieret ind, skal
         // pointeren gemmes i vores datastruktur, så den ikke går tabt. Den
         // gemmes på plads `config->count` som er seneste ubrugte plads.
-        config->lines[config->count] = buf2; // brug setting_converter()
+        config->lines[config->count] = *setting_converter(buf2); // brug setting_converter()
 
         // `count` forøges så næste config-linjes buffer gemmes på næste plads.
         config->count += 1;
@@ -64,6 +64,31 @@ struct config_t *read_config(char *filename) {
 struct setting_t *setting_converter(char *line) {
     // TODO: Allokér en struct setting_t (vha. malloc())
     struct setting_t *setting = malloc(sizeof(struct setting_t));
+    char char_reader;
+    char *name = malloc(strlen(line) + 1);
+    char *value = malloc(strlen(line) + 1);
+    int n = 0;
+
+
+    while ((char_reader = line[n]) != '=' && char_reader != '\0') {
+        char_reader = line[n];
+        name[n] = char_reader;
+        n++;
+    }
+    setting->name[n] = '\0';
+
+    if (line[n] == '=') {
+        n++;
+    }
+
+    int v = 0;
+    while (char_reader != '\0') {
+        char_reader = line[n];
+        value[v] = char_reader;
+        n++;
+        v++;
+    }
+    setting->value[v] = '\0';
 
     // Jeg skal bygge en lille parser der laver "name = Simon" om til to strings.
     // Loop hen over pladserne i `line` indtil du støder på et `=`. Så ved du at
@@ -74,8 +99,11 @@ struct setting_t *setting_converter(char *line) {
     // TODO: Find navnet på setting'en i *line
     // TODO: Find værdien på setting'en i *line
 
-    setting->name = NULL; // skal ændres
-    setting->value = NULL; // skal ændres
+    strcpy(setting->name, name);
+    strcpy(setting->value, value);
+
+    printf("name is %s\n",setting->name);
+    printf("value is %s\n",setting->value);
 
     // TODO: return den setting hvor felterne er sat
     return setting;
@@ -101,7 +129,7 @@ void free_config(struct config_t *config) {
     }
 
     for (int i = 0; i < config->count; i++) {
-        free(config->lines[i]);
+        free(&config->lines[i]);
     }
 
     free(config);
