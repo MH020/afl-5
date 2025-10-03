@@ -70,8 +70,8 @@ struct setting_t *setting_converter(char *line) {
     // TODO: Allokér en struct setting_t (vha. malloc())
     struct setting_t *setting = malloc(sizeof(struct setting_t));
     char char_reader;
-    char *name = malloc(strlen(line) + 1);
-    char *value = malloc(strlen(line) + 1);
+    char *name = malloc(sizeof(*line));
+    char *value = malloc(sizeof(*line));
     int n = 0;
 
 
@@ -86,7 +86,7 @@ struct setting_t *setting_converter(char *line) {
     if (line[n] == '=') {
         n++;
     }
-    setting->name[n] = '\0';
+    //setting->name[n] = '\0';
 
     int v = 0;
     while (char_reader != '\0') {
@@ -96,7 +96,7 @@ struct setting_t *setting_converter(char *line) {
         v++;
     }
     printf("value er %s\n", value);
-    setting->value[v] = '\0';
+    //setting->value[v] = '\0';
 
     printf("value[] length: %llu\nname[] length: %llu\n", strlen(value), strlen(name));
     // Jeg skal bygge en lille parser der laver "name = Simon" om til to strings.
@@ -107,6 +107,10 @@ struct setting_t *setting_converter(char *line) {
 
     // TODO: Find navnet på setting'en i *line
     // TODO: Find værdien på setting'en i *line
+
+
+    setting->name = malloc(sizeof(name));
+    setting->value = malloc(sizeof(value));
 
     strcpy(setting->name, name);
     strcpy(setting->value, value);
