@@ -34,7 +34,7 @@ struct config_t *read_config(char *filename) {
     // når vi først har indlæst hele konfigurationen. Så den er midlertidig inde i
     // funktionen.
     char buf1[256];
-
+    /// the great wall of text
     // - `fgets()` returnerer NULL når vi er nået bunden af filen
     // - Der læses højest `sizeof(buf1)` bytes ind i buf1
     // - `fgets()` husker at gøre plads til NUL-byte'en!
@@ -52,16 +52,21 @@ struct config_t *read_config(char *filename) {
         // Efter `buf2` er allokeret og config-linjen er kopieret ind, skal
         // pointeren gemmes i vores datastruktur, så den ikke går tabt. Den
         // gemmes på plads `config->count` som er seneste ubrugte plads.
-        config->lines[config->count] = *setting_converter(buf2); // brug setting_converter()
-
+        config->lines[config->count] = setting_converter(buf2); // brug setting_converter()
+        print_config(config);
         // `count` forøges så næste config-linjes buffer gemmes på næste plads.
-        config->count += 1;
+        config->count++;
+        printf("count: %llu\n", config->count);
     }
+
 
     return config;
 }
 
 struct setting_t *setting_converter(char *line) {
+    if (line == NULL) {
+        return NULL;
+    }
     // TODO: Allokér en struct setting_t (vha. malloc())
     struct setting_t *setting = malloc(sizeof(struct setting_t));
     char char_reader;
@@ -70,16 +75,18 @@ struct setting_t *setting_converter(char *line) {
     int n = 0;
 
 
-    while ((char_reader = line[n]) != '=' && char_reader != '\0') {
+    while ( (char_reader = line[n]) != '=' && char_reader != '\0') {
         char_reader = line[n];
         name[n] = char_reader;
         n++;
+
+        //printf("char_reader: %c\n", char_reader);
     }
-    setting->name[n] = '\0';
 
     if (line[n] == '=') {
         n++;
     }
+    setting->name[n] = '\0';
 
     int v = 0;
     while (char_reader != '\0') {
@@ -88,8 +95,10 @@ struct setting_t *setting_converter(char *line) {
         n++;
         v++;
     }
+    printf("value er %s\n", value);
     setting->value[v] = '\0';
 
+    printf("value[] length: %llu\nname[] length: %llu\n", strlen(value), strlen(name));
     // Jeg skal bygge en lille parser der laver "name = Simon" om til to strings.
     // Loop hen over pladserne i `line` indtil du støder på et `=`. Så ved du at
     // name-delen slutter og at value-delen begynder. Skal man lave to allokeringer
@@ -102,6 +111,7 @@ struct setting_t *setting_converter(char *line) {
     strcpy(setting->name, name);
     strcpy(setting->value, value);
 
+
     printf("name is %s\n",setting->name);
     printf("value is %s\n",setting->value);
 
@@ -111,11 +121,14 @@ struct setting_t *setting_converter(char *line) {
 
 void print_setting(struct setting_t *setting) {
     // TODO: Print en enkelt setting's name og value
+    printf("name is %s\n",setting->name);
+    printf("value is %s\n",setting->value);
+
 }
 
 void print_config(struct config_t *config) {
     for (int i = 0; i < config->count; i++) {
-        printf("Setting: %s", config->lines[i]);
+        //printf("Setting: %s", config->lines[i]);
         // print_setting(config->lines[i]);
     }
 }
