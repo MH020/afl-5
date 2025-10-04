@@ -53,10 +53,9 @@ struct config_t *read_config(char *filename) {
         // pointeren gemmes i vores datastruktur, så den ikke går tabt. Den
         // gemmes på plads `config->count` som er seneste ubrugte plads.
         config->lines[config->count] = setting_converter(buf2); // brug setting_converter()
-        print_config(config);
+        print_setting(config->lines[config->count]);
         // `count` forøges så næste config-linjes buffer gemmes på næste plads.
         config->count++;
-        printf("count: %llu\n", config->count);
     }
 
 
@@ -70,35 +69,33 @@ struct setting_t *setting_converter(char *line) {
     // TODO: Allokér en struct setting_t (vha. malloc())
     struct setting_t *setting = malloc(sizeof(struct setting_t));
     char char_reader;
-    char *name = malloc(sizeof(*line));
-    char *value = malloc(sizeof(*line));
+    char *name = malloc(strlen(line) + 1);
+    char *value = malloc(strlen(line) +1);
+
+
     int n = 0;
-
-
-    while ( (char_reader = line[n]) != '=' && char_reader != '\0') {
+    while ( (char_reader = line[n]) != '=' && char_reader != ' ') {
         char_reader = line[n];
         name[n] = char_reader;
         n++;
-
-        //printf("char_reader: %c\n", char_reader);
     }
+
+    printf("n = %d\n",n);
 
     if (line[n] == '=') {
         n++;
     }
-    //setting->name[n] = '\0';
+    name[n] = '\0';
 
     int v = 0;
-    while (char_reader != '\0') {
+    while (line[n] != '\0') {
         char_reader = line[n];
         value[v] = char_reader;
         n++;
         v++;
     }
-    printf("value er %s\n", value);
-    //setting->value[v] = '\0';
+    value[v] = '\0';
 
-    printf("value[] length: %llu\nname[] length: %llu\n", strlen(value), strlen(name));
     // Jeg skal bygge en lille parser der laver "name = Simon" om til to strings.
     // Loop hen over pladserne i `line` indtil du støder på et `=`. Så ved du at
     // name-delen slutter og at value-delen begynder. Skal man lave to allokeringer
@@ -109,15 +106,11 @@ struct setting_t *setting_converter(char *line) {
     // TODO: Find værdien på setting'en i *line
 
 
-    setting->name = malloc(sizeof(name));
-    setting->value = malloc(sizeof(value));
+    setting->name = malloc(strlen(name) + 1);
+    setting->value = malloc(strlen(value) + 1);
 
     strcpy(setting->name, name);
     strcpy(setting->value, value);
-
-
-    printf("name is %s\n",setting->name);
-    printf("value is %s\n",setting->value);
 
     // TODO: return den setting hvor felterne er sat
     return setting;
